@@ -126,3 +126,20 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+CORS_ALLOW_ALL_ORIGINS = True  # Allow all domains (for development only)
+CORS_ALLOW_CREDENTIALS = True  # Allow cookies and authentication
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:3000",  # If your Next.js frontend runs on this
+    "http://127.0.0.1:3000",
+]
+
+CORS_ALLOW_METHODS = [
+    "GET",
+    "POST",
+    "PUT",
+    "PATCH",
+    "DELETE",
+    "OPTIONS"
+]

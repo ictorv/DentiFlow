@@ -11,16 +11,16 @@ const Register = () => {
   const [error, setError] = useState('');
   const [step, setStep] = useState(1);
   const [registerData, setRegisterData] = useState({
-    name: '',
-    clinicName: '',
+    username:'',
+    clinic_name: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    password2: ''
   });
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (registerData.password !== registerData.confirmPassword) {
+    if (registerData.password !== registerData.password2) {
       setError('Passwords do not match');
       return;
     }
@@ -90,8 +90,8 @@ const Register = () => {
                   <User className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
                   <input
                     type="text"
-                    value={registerData.name}
-                    onChange={(e) => setRegisterData({ ...registerData, name: e.target.value })}
+                    value={registerData.username}
+                    onChange={(e) => setRegisterData({ ...registerData, username: e.target.value })}
                     className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="Dr. John Doe"
                     required
@@ -105,8 +105,8 @@ const Register = () => {
                   <Building2 className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
                   <input
                     type="text"
-                    value={registerData.clinicName}
-                    onChange={(e) => setRegisterData({ ...registerData, clinicName: e.target.value })}
+                    value={registerData.clinic_name}
+                    onChange={(e) => setRegisterData({ ...registerData, clinic_name: e.target.value })}
                     className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="Smile Perfect Dental Clinic"
                     required
@@ -150,8 +150,8 @@ const Register = () => {
                   <Lock className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
                   <input
                     type="password"
-                    value={registerData.confirmPassword}
-                    onChange={(e) => setRegisterData({ ...registerData, confirmPassword: e.target.value })}
+                    value={registerData.password2}
+                    onChange={(e) => setRegisterData({ ...registerData, password2: e.target.value })}
                     className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="••••••••"
                     required

@@ -64,6 +64,9 @@ const LandingPage = () => {
               <p className="text-gray-600">
                 Intelligent appointment management with automated reminders and easy rescheduling.
               </p>
+              <Link href="/dashboard/smart-scheduling" className="text-blue-600 font-medium mt-2 inline-flex items-center">
+                Learn More <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
             </div>
             <div className="p-6 rounded-xl bg-blue-50">
               <Users className="h-12 w-12 text-blue-600 mb-4" />
@@ -71,6 +74,9 @@ const LandingPage = () => {
               <p className="text-gray-600">
                 Complete patient history, treatment plans, and communication tools in one place.
               </p>
+              <Link href="/dashboard/patient-management" className="text-blue-600 font-medium mt-2 inline-flex items-center">
+                Learn More <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
             </div>
             <div className="p-6 rounded-xl bg-blue-50">
               <ChartBar className="h-12 w-12 text-blue-600 mb-4" />

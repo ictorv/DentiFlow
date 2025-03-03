@@ -12,6 +12,7 @@ import {
   Clock2
 } from 'lucide-react';
 
+
 export default function SmartSchedulingPage() {
   // State for selected date and appointments
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -22,6 +23,10 @@ export default function SmartSchedulingPage() {
     duration: '30',
     type: 'Check-up'
   });
+
+  const [currentMonth, setCurrentMonth] = useState(selectedDate.getMonth());
+  const [currentYear, setCurrentYear] = useState(selectedDate.getFullYear());
+
 
   // Mock data for patients
   const patients = [
@@ -48,31 +53,45 @@ export default function SmartSchedulingPage() {
 
   // Helper function to generate calendar days
   const generateCalendarDays = () => {
-    const today = new Date();
-    const currentMonth = today.getMonth();
-    const currentYear = today.getFullYear();
-    
-    // Get first day of month and how many days in month
     const firstDay = new Date(currentYear, currentMonth, 1).getDay();
     const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
     
     const days = [];
-    // Add empty cells for days before first of month
+    // Add empty cells for days before the first day of the month
     for (let i = 0; i < firstDay; i++) {
       days.push({ day: "", appointments: 0 });
     }
     
-    // Add days of month with random appointment counts
+    // Add days of the current month with random appointment counts
     for (let i = 1; i <= daysInMonth; i++) {
       const apptCount = Math.floor(Math.random() * 10);
       days.push({ 
         day: i, 
         appointments: apptCount,
-        isToday: i === today.getDate()
+        isToday: i === selectedDate.getDate()
       });
     }
     
     return days;
+  };
+
+    // Function to handle navigation between months
+  const handlePreviousMonth = () => {
+    if (currentMonth === 0) {
+      setCurrentMonth(11);
+      setCurrentYear(currentYear - 1);
+    } else {
+      setCurrentMonth(currentMonth - 1);
+      }
+  };
+  
+  const handleNextMonth = () => {
+    if (currentMonth === 11) {
+      setCurrentMonth(0);
+      setCurrentYear(currentYear + 1);
+    } else {
+      setCurrentMonth(currentMonth + 1);
+    }
   };
 
   const calendarDays = generateCalendarDays();
@@ -120,20 +139,20 @@ export default function SmartSchedulingPage() {
             <div className="p-4 border-b border-gray-200 flex justify-between items-center">
               <h2 className="text-lg font-semibold text-gray-900 flex items-center">
                 <Calendar className="h-5 w-5 mr-2 text-blue-600" />
-                March 2025
+                {new Date(currentYear, currentMonth).toLocaleString('default', { month: 'long', year: 'numeric' })}
               </h2>
               <div className="flex space-x-2">
-                <button className="p-2 rounded-lg hover:bg-gray-100">
+                <button onClick={handlePreviousMonth} className="p-2 rounded-lg hover:bg-gray-100">
                   Previous
                 </button>
-                <button className="p-2 rounded-lg hover:bg-gray-100">
+                <button onClick={handleNextMonth} className="p-2 rounded-lg hover:bg-gray-100">
                   Next
                 </button>
               </div>
             </div>
-            
+
             {/* Calendar Grid */}
-            <div className="p-4">
+<div className="p-4">
               <div className="grid grid-cols-7 gap-1 mb-2">
                 {weekDays.map(day => (
                   <div key={day} className="text-center text-sm font-medium text-gray-600 py-2">
@@ -151,7 +170,7 @@ export default function SmartSchedulingPage() {
                       ${day.isToday ? 'bg-blue-50 border-blue-200' : 'hover:bg-gray-50'} 
                       ${day.day === "" ? 'bg-gray-50' : 'cursor-pointer'}
                     `}
-                    onClick={() => day.day && setSelectedDate(new Date(2025, 2, day.day))}
+                    onClick={() => day.day && setSelectedDate(new Date(currentYear, currentMonth, day.day))}
                   >
                     {day.day && (
                       <>

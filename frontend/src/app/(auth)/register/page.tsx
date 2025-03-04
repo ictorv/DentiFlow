@@ -9,7 +9,6 @@ const Register = () => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [step, setStep] = useState(1);
   const [registerData, setRegisterData] = useState({
     username:'',
     clinic_name: '',
@@ -66,7 +65,7 @@ const Register = () => {
 
           <div className="flex items-center mb-8">
             <Stethoscope className="h-8 w-8 text-blue-600" />
-            <span className="ml-3 text-2xl font-bold text-gray-900">Dental CRM</span>
+            <span className="ml-3 text-2xl font-bold text-gray-900">DentiFlow</span>
           </div>
 
           <div className="bg-white shadow-md rounded-lg p-8">
@@ -195,7 +194,7 @@ const Register = () => {
           
           <div className="mt-12 p-6 bg-white/10 rounded-lg backdrop-blur-sm">
             <blockquote className="text-lg italic">
-              "Dental CRM has revolutionized how we manage our practice. The efficiency gains are remarkable."
+              &quot;DentiFlow has revolutionized how we manage our practice. The efficiency gains are remarkable.&quot;
             </blockquote>
             <p className="mt-4 font-medium">Dr. Sarah Wilson</p>
             <p className="text-sm text-blue-200">Bright Smile Dental Center</p>

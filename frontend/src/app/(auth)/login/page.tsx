@@ -56,7 +56,7 @@ const Auth = () => {
 
           <div className="flex items-center mb-8">
             <Stethoscope className="h-8 w-8 text-blue-600" />
-            <span className="ml-3 text-2xl font-bold text-gray-900">Dental CRM</span>
+            <span className="ml-3 text-2xl font-bold text-gray-900">DentiFlow</span>
           </div>
 
           <div className="bg-white shadow-md rounded-lg p-8">
@@ -133,7 +133,7 @@ const Auth = () => {
                   <div className="w-full border-t border-gray-300"></div>
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white text-gray-500">New to Dental CRM?</span>
+                  <span className="px-2 bg-white text-gray-500">New to DentiFlow?</span>
                 </div>
               </div>
 
@@ -165,7 +165,7 @@ const Auth = () => {
           
           <div className="mt-12 p-6 bg-white/10 rounded-lg backdrop-blur-sm">
             <blockquote className="text-lg italic">
-              "Since implementing Dental CRM, we've seen a 40% increase in patient satisfaction and streamlined our daily operations."
+             &quot;Since implementing DentiFlow, we&apos;ve seen a 40% increase in patient satisfaction and streamlined our daily operations.&quot;
             </blockquote>
             <p className="mt-4 font-medium">Dr. Michael Chen</p>
             <p className="text-sm text-blue-200">Advanced Dental Care Center</p>

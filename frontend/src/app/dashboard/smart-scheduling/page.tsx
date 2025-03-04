@@ -3,8 +3,7 @@
 import React, { useState } from 'react';
 import { 
   Calendar, 
-  Clock, 
-  User, 
+  Clock,  
   Plus, 
   X, 
   Check,
@@ -170,7 +169,11 @@ export default function SmartSchedulingPage() {
                       ${day.isToday ? 'bg-blue-50 border-blue-200' : 'hover:bg-gray-50'} 
                       ${day.day === "" ? 'bg-gray-50' : 'cursor-pointer'}
                     `}
-                    onClick={() => day.day && setSelectedDate(new Date(currentYear, currentMonth, day.day))}
+                    onClick={() => {
+                      if (typeof day.day === "number") {
+                        setSelectedDate(new Date(currentYear, currentMonth, day.day));
+                      }
+                    }}
                   >
                     {day.day && (
                       <>

@@ -11,7 +11,7 @@ const LandingPage = () => {
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center">
               <Stethoscope className="h-8 w-8 text-blue-600" />
-              <span className="ml-3 text-xl font-bold text-gray-900">Dental CRM</span>
+              <span className="ml-3 text-xl font-bold text-gray-900">DentiFlow</span>
             </div>
             <div className="flex items-center space-x-4">
               <Link 

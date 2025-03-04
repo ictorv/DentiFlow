@@ -98,7 +98,7 @@ export default function DashboardPage() {
       <main className="max-w-7xl mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-gray-900">Welcome back, Dr. Smith</h1>
-          <p className="text-gray-600">Here's what's happening at your clinic today</p>
+          <p className="text-gray-600">Here&apos;s what&apos;s happening at your clinic today</p>
         </div>
 
         {/* Quick Actions */}
@@ -142,7 +142,7 @@ export default function DashboardPage() {
         {/* Today's Appointments */}
         <div className="bg-white rounded-xl shadow-sm p-6">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">Today's Appointments</h2>
+            <h2 className="text-lg font-semibold text-gray-900">Today&apos;s Appointments</h2>
             <Link 
               href="/dashboard/smart-scheduling" 
               className="text-sm text-blue-600 hover:text-blue-800 flex items-center"

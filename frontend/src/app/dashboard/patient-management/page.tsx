@@ -1,14 +1,14 @@
 "use client";
 import React, { useState } from 'react';
 import { 
-  Users, Search, Plus, Edit, Trash2, Filter, 
+ Search, Plus, Edit, Trash2, Filter, 
   ChevronLeft, ChevronRight, MoreHorizontal, Stethoscope 
 } from 'lucide-react';
 import Link from 'next/link';
 
 const PatientManagementPage = () => {
   // Sample patient data
-  const [patients, setPatients] = useState([
+  const [patients] = useState([
     { id: 1, name: 'John Doe', email: 'john.doe@example.com', phone: '(555) 123-4567', lastVisit: '2025-02-15', nextAppointment: '2025-03-20' },
     { id: 2, name: 'Jane Smith', email: 'jane.smith@example.com', phone: '(555) 987-6543', lastVisit: '2025-02-20', nextAppointment: '2025-04-05' },
     { id: 3, name: 'Michael Johnson', email: 'michael.j@example.com', phone: '(555) 456-7890', lastVisit: '2025-01-30', nextAppointment: '2025-03-15' },
@@ -54,7 +54,7 @@ const PatientManagementPage = () => {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Patient Management</h1>
-              <p className="mt-1 text-gray-600">Manage your patients' records and treatment plans</p>
+              <p className="mt-1 text-gray-600">Manage your patients&apos; records and treatment plans</p>
             </div>
             <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center">
               <Plus className="mr-2 h-5 w-5" /> Add New Patient

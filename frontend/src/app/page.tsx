@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { Stethoscope, Calendar, Users, ChartBar, ArrowRight } from 'lucide-react';
+import { Stethoscope, Calendar, Users, ChartBar, ArrowRight, CreditCard } from 'lucide-react';
 
 const LandingPage = () => {
   return (
@@ -39,7 +39,7 @@ const LandingPage = () => {
               Streamline Your Dental Practice Management
             </h1>
             <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-              Manage appointments, patient records, and business analytics all in one place. 
+              Manage appointments, patient records, billing, and business analytics all in one place. 
               Built specifically for modern dental practices.
             </p>
             <div className="flex justify-center space-x-4">
@@ -57,7 +57,7 @@ const LandingPage = () => {
       {/* Features Section */}
       <section className="py-20 px-4 bg-white">
         <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="p-6 rounded-xl bg-blue-50">
               <Calendar className="h-12 w-12 text-blue-600 mb-4" />
               <h3 className="text-xl font-semibold mb-2">Smart Scheduling</h3>
@@ -79,11 +79,24 @@ const LandingPage = () => {
               </Link>
             </div>
             <div className="p-6 rounded-xl bg-blue-50">
+              <CreditCard className="h-12 w-12 text-blue-600 mb-4" />
+              <h3 className="text-xl font-semibold mb-2">Payment & Billing</h3>
+              <p className="text-gray-600">
+                Streamlined invoicing, payment processing, and insurance claim management.
+              </p>
+              <Link href="/dashboard/payment-billing" className="text-blue-600 font-medium mt-2 inline-flex items-center">
+                Learn More <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </div>
+            <div className="p-6 rounded-xl bg-blue-50">
               <ChartBar className="h-12 w-12 text-blue-600 mb-4" />
               <h3 className="text-xl font-semibold mb-2">Business Analytics</h3>
               <p className="text-gray-600">
                 Deep insights into your practice performance with customizable reports.
               </p>
+              <Link href="/dashboard/analytics" className="text-blue-600 font-medium mt-2 inline-flex items-center">
+                Learn More <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
             </div>
           </div>
         </div>

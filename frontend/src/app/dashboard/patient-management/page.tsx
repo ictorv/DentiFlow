@@ -1,25 +1,76 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from "react";
 import { 
- Search, Plus, Edit, Trash2, Filter, 
+  Search, Plus, Edit, Trash2, Filter, 
   ChevronLeft, ChevronRight, MoreHorizontal, Stethoscope 
-} from 'lucide-react';
-import Link from 'next/link';
+} from "lucide-react";
+import AddPatient from "./AddPatient";
+import Link from "next/link";
 
 const PatientManagementPage = () => {
-  // Sample patient data
-  const [patients] = useState([
-    { id: 1, name: 'John Doe', email: 'john.doe@example.com', phone: '(555) 123-4567', lastVisit: '2025-02-15', nextAppointment: '2025-03-20' },
-    { id: 2, name: 'Jane Smith', email: 'jane.smith@example.com', phone: '(555) 987-6543', lastVisit: '2025-02-20', nextAppointment: '2025-04-05' },
-    { id: 3, name: 'Michael Johnson', email: 'michael.j@example.com', phone: '(555) 456-7890', lastVisit: '2025-01-30', nextAppointment: '2025-03-15' },
-    { id: 4, name: 'Sarah Williams', email: 'sarah.w@example.com', phone: '(555) 234-5678', lastVisit: '2025-02-10', nextAppointment: '2025-03-10' },
-    { id: 5, name: 'Robert Brown', email: 'robert.b@example.com', phone: '(555) 876-5432', lastVisit: '2025-02-28', nextAppointment: '2025-03-28' },
-  ]);
-  
-  const [searchTerm, setSearchTerm] = useState('');
+  const [patients, setPatients] = useState([]); // Ensure patients is an array
+  const [searchTerm, setSearchTerm] = useState("");
 
+  // Fetch patients from the API
+  useEffect(() => {
+    const fetchPatients = async () => {
+      try {
+        const response = await fetch("http://127.0.0.1:8000/api/patients/");
+        const data = await response.json();
+        setPatients(Array.isArray(data) ? data : []); // Ensure data is an array
+      } catch (error) {
+        console.error("Error fetching patients:", error);
+        setPatients([]); // Fallback to empty array in case of error
+      }
+    };
+
+    fetchPatients();
+  }, []);
+
+  const handleAddPatient = async () => {
+    const newPatient = {
+      name: "New Patient",
+      email: "new.patient@example.com",
+      phone: "(555) 000-0000",
+      last_visit: new Date().toISOString().split("T")[0],
+      next_appointment: new Date(new Date().setDate(new Date().getDate() + 30))
+        .toISOString()
+        .split("T")[0],
+    };
+
+    try {
+      const response = await fetch("http://127.0.0.1:8000/api/patients/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newPatient),
+      });
+
+      if (response.ok) {
+        const createdPatient = await response.json();
+        setPatients((prev) => [...prev, createdPatient]); // Update state
+        alert("Patient added successfully!");
+      } else {
+        alert("Failed to add patient.");
+      }
+    } catch (error) {
+      console.error("Error adding patient:", error);
+      alert("Error adding patient.");
+    }
+  };
+
+  const handleDeletePatient = async (id) => {
+    try {
+      const response = await fetch(`${API_URL}${id}/`, { method: "DELETE" });
+      if (response.ok) {
+        setPatients(patients.filter((patient) => patient.id !== id));
+      }
+    } catch (error) {
+      console.error("Error deleting patient:", error);
+    }
+  };
+  
   // Filter patients based on search term
-  const filteredPatients = patients.filter(patient => 
+  const filteredPatients = patients.filter((patient) =>
     patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     patient.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
     patient.phone.includes(searchTerm)
@@ -27,7 +78,6 @@ const PatientManagementPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Navbar */}
       <nav className="fixed w-full bg-white/80 backdrop-blur-md z-50 border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
@@ -47,22 +97,20 @@ const PatientManagementPage = () => {
         </div>
       </nav>
 
-      {/* Main Content */}
       <div className="pt-20 pb-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        {/* Page Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Patient Management</h1>
-              <p className="mt-1 text-gray-600">Manage your patients&apos; records and treatment plans</p>
-            </div>
-            <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center">
-              <Plus className="mr-2 h-5 w-5" /> Add New Patient
-            </button>
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Patient Management</h1>
+            <p className="mt-1 text-gray-600">Manage your patients&apos; records and treatment plans</p>
           </div>
+          <button
+            onClick={handleAddPatient}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center"
+          >
+            <Plus className="mr-2 h-5 w-5" /> Add New Patient
+          </button>
         </div>
 
-        {/* Search and Filter Bar */}
         <div className="mb-6 flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
           <div className="relative flex-grow">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -81,56 +129,26 @@ const PatientManagementPage = () => {
           </button>
         </div>
 
-        {/* Patients Table */}
         <div className="bg-white rounded-lg shadow overflow-hidden">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Name
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Contact Info
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Last Visit
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Next Appointment
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact Info</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Visit</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Next Appointment</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredPatients.map((patient) => (
                   <tr key={patient.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="h-10 w-10 flex-shrink-0 rounded-full bg-blue-100 flex items-center justify-center">
-                          <span className="text-blue-600 font-medium">
-                            {patient.name.split(' ').map(n => n[0]).join('')}
-                          </span>
-                        </div>
-                        <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">{patient.name}</div>
-                          <div className="text-sm text-gray-500">Patient #{patient.id}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{patient.email}</div>
-                      <div className="text-sm text-gray-500">{patient.phone}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{new Date(patient.lastVisit).toLocaleDateString()}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{new Date(patient.nextAppointment).toLocaleDateString()}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <td className="px-6 py-4">{patient.name}</td>
+                    <td className="px-6 py-4">{patient.email}<br/>{patient.phone}</td>
+                    <td className="px-6 py-4">{new Date(patient.last_visit).toLocaleDateString()}</td>
+                    <td className="px-6 py-4">{new Date(patient.next_appointment).toLocaleDateString()}</td>
+                    <td className="px-6 py-4 text-right">
                       <button className="text-blue-600 hover:text-blue-900 mr-4">
                         <Edit className="h-5 w-5" />
                       </button>
@@ -142,23 +160,6 @@ const PatientManagementPage = () => {
                 ))}
               </tbody>
             </table>
-          </div>
-          
-          {/* Pagination */}
-          <div className="px-4 py-3 bg-white border-t border-gray-200 sm:px-6">
-            <div className="flex items-center justify-between">
-              <div className="text-sm text-gray-700">
-                Showing <span className="font-medium">1</span> to <span className="font-medium">{filteredPatients.length}</span> of <span className="font-medium">{patients.length}</span> patients
-              </div>
-              <div className="flex space-x-2">
-                <button className="px-3 py-1 border border-gray-300 rounded-md bg-white text-gray-500 hover:bg-gray-50">
-                  <ChevronLeft className="h-5 w-5" />
-                </button>
-                <button className="px-3 py-1 border border-gray-300 rounded-md bg-white text-gray-500 hover:bg-gray-50">
-                  <ChevronRight className="h-5 w-5" />
-                </button>
-              </div>
-            </div>
           </div>
         </div>
       </div>

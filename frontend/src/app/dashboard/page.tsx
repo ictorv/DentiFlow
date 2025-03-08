@@ -2,6 +2,8 @@
 "use client";
 import React from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation'; // Add this import
+import axios from 'axios';
 import { 
   Users, 
   Calendar, 
@@ -9,10 +11,27 @@ import {
   Menu,
   LogOut,
   Search,
-  Clock
+  Clock,
+  Stethoscope
 } from 'lucide-react';
 
 export default function DashboardPage() {
+  const router = useRouter(); // Add this hook
+  
+  // Add this function
+  const handleLogout = () => {
+    // Clear the authentication token
+    localStorage.removeItem('token');
+    
+    // Clear the Authorization header if using axios
+    if (axios.defaults.headers.common['Authorization']) {
+      delete axios.defaults.headers.common['Authorization'];
+    }
+    
+    // Redirect to login page
+    router.push('/');
+  };
+
   const stats = [
     {
       title: "Total Patients",
@@ -55,7 +74,7 @@ export default function DashboardPage() {
       description: "View and manage patient information",
       icon: Users,
       color: "bg-green-100 text-green-600",
-      link: "#"
+      link: "/dashboard/patient-management"
     },
     {
       title: "Analytics",
@@ -66,6 +85,8 @@ export default function DashboardPage() {
     }
   ];
 
+  
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Navigation */}
@@ -73,8 +94,8 @@ export default function DashboardPage() {
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex justify-between h-16 items-center">
             <div className="flex items-center">
-              <Menu className="h-6 w-6 text-gray-600" />
-              <span className="ml-4 text-xl font-semibold">Dental CRM</span>
+              <Stethoscope className="h-8 w-8 text-blue-600" />
+              <span className="ml-4 text-xl font-semibold">DentiFlow</span>
             </div>
             <div className="flex items-center space-x-4">
               <div className="relative">
@@ -85,7 +106,9 @@ export default function DashboardPage() {
                   className="pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
-              <button className="flex items-center text-gray-600 hover:text-gray-900">
+              <button className="flex items-center text-gray-600 hover:text-gray-900"
+              onClick={handleLogout}
+              >
                 <LogOut className="h-5 w-5" />
                 <span className="ml-2">Logout</span>
               </button>

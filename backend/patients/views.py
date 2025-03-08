@@ -6,4 +6,9 @@ from .serializers import PatientSerializer
 class PatientListCreateView(generics.ListCreateAPIView):
     queryset = Patient.objects.all()
     serializer_class = PatientSerializer
-    permission_classes = [AllowAny] 
+    permission_classes = [AllowAny]
+
+class PatientDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Patient.objects.all()
+    serializer_class = PatientSerializer
+    permission_classes = [AllowAny]

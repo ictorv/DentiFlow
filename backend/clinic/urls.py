@@ -9,5 +9,5 @@ router.register(r'appointment-types', AppointmentTypeViewSet)
 router.register(r'appointments', AppointmentViewSet)
 
 urlpatterns = [
-    path('', include(router.urls)),
+    path('api/', include(router.urls)),
 ]

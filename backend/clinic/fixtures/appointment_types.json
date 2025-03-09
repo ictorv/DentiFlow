@@ -1,0 +1,52 @@
+[
+  {
+    "model": "clinic.appointmenttype",
+    "pk": 1,
+    "fields": {
+      "name": "Check-up",
+      "default_duration": 30,
+      "color_code": "#3498db",
+      "description": "Regular dental check-up"
+    }
+  },
+  {
+    "model": "clinic.appointmenttype",
+    "pk": 2,
+    "fields": {
+      "name": "Cleaning",
+      "default_duration": 45,
+      "color_code": "#2ecc71",
+      "description": "Professional teeth cleaning"
+    }
+  },
+  {
+    "model": "clinic.appointmenttype",
+    "pk": 3,
+    "fields": {
+      "name": "Root Canal",
+      "default_duration": 90,
+      "color_code": "#e74c3c",
+      "description": "Root canal treatment"
+    }
+  },
+  {
+    "model": "clinic.appointmenttype",
+    "pk": 4,
+    "fields": {
+      "name": "Filling",
+      "default_duration": 60,
+      "color_code": "#f39c12",
+      "description": "Dental filling"
+    }
+  },
+  {
+    "model": "clinic.appointmenttype",
+    "pk": 5,
+    "fields": {
+      "name": "Consultation",
+      "default_duration": 30,
+      "color_code": "#9b59b6",
+      "description": "Initial consultation"
+    }
+  }
+]

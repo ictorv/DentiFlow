@@ -7,7 +7,7 @@ class PatientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Patient
         fields = '__all__'
-        
+
 class AppointmentTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = AppointmentType
@@ -16,68 +16,57 @@ class AppointmentTypeSerializer(serializers.ModelSerializer):
 class AppointmentSerializer(serializers.ModelSerializer):
     patient_name = serializers.CharField(source='patient.name', read_only=True)
     appointment_type_name = serializers.CharField(source='appointment_type.name', read_only=True)
-    
-    # For displaying in the frontend
-    time = serializers.SerializerMethodField()
-    endTime = serializers.SerializerMethodField()
+    end_time = serializers.TimeField(read_only=True)
     
     class Meta:
         model = Appointment
         fields = [
             'id', 'patient', 'patient_name', 'appointment_type', 'appointment_type_name',
             'date', 'start_time', 'end_time', 'duration', 'notes', 'status',
-            'time', 'endTime', 'created_at', 'updated_at'
+            'created_at', 'updated_at'
         ]
     
-    def get_time(self, obj):
-        """Format start_time for frontend display"""
-        return obj.start_time.strftime('%I:%M %p')
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        # Format time strings to match the frontend expected format
+        if 'start_time' in representation:
+            time_obj = datetime.strptime(representation['start_time'], '%H:%M:%S').time()
+            representation['time'] = time_obj.strftime('%I:%M %p')  # e.g., "09:00 AM"
+        if 'end_time' in representation:
+            time_obj = datetime.strptime(representation['end_time'], '%H:%M:%S').time()
+            representation['endTime'] = time_obj.strftime('%I:%M %p')  # e.g., "09:30 AM"
+        return representation
+
+class AppointmentCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Appointment
+        fields = ['patient', 'appointment_type', 'date', 'start_time', 'duration', 'notes']
     
-    def get_endTime(self, obj):
-        """Format end_time for frontend display"""
-        return obj.end_time.strftime('%I:%M %p')
-        
     def validate(self, data):
         """
-        Check that appointment doesn't overlap with existing appointments.
+        Validate that the appointment doesn't conflict with existing appointments.
         """
-        date = data.get('date')
-        start_time = data.get('start_time')
-        duration = data.get('duration')
-        
-        # If we're updating an existing instance, exclude it from the check
-        instance_id = self.instance.id if self.instance else None
-        
-        # Calculate end time
-        start_datetime = datetime.combine(date, start_time)
-        end_datetime = start_datetime + timedelta(minutes=duration)
-        end_time = end_datetime.time()
-        
-        # Update data with calculated end_time
-        data['end_time'] = end_time
+        start_datetime = datetime.combine(data['date'], data['start_time'])
+        end_datetime = start_datetime + timedelta(minutes=data['duration'])
         
         # Check for overlapping appointments
         overlapping = Appointment.objects.filter(
-            date=date,
-            status='scheduled'
-        ).exclude(id=instance_id)
+            date=data['date'],
+            status=Appointment.STATUS_SCHEDULED
+        ).exclude(id=self.instance.id if self.instance else None)
         
-        for appointment in overlapping:
-            # Convert appointment times to datetime for comparison
-            appt_start = datetime.combine(date, appointment.start_time)
-            appt_end = datetime.combine(date, appointment.end_time)
+        for appt in overlapping:
+            appt_start = datetime.combine(appt.date, appt.start_time)
+            appt_end = appt_start + timedelta(minutes=appt.duration)
             
-            # Check for overlap
+            # Check if appointments overlap
             if (start_datetime < appt_end and end_datetime > appt_start):
                 raise serializers.ValidationError(
-                    "This appointment overlaps with an existing appointment."
+                    f"This appointment overlaps with an existing appointment for {appt.patient.name}"
                 )
         
         return data
 
-class AppointmentReadSerializer(AppointmentSerializer):
-    """Serializer for reading appointments with additional calculated fields"""
-    type = serializers.CharField(source='appointment_type.name')
-    
-    class Meta(AppointmentSerializer.Meta):
-        fields = AppointmentSerializer.Meta.fields + ['type']
+class AppointmentCountSerializer(serializers.Serializer):
+    date = serializers.DateField()
+    count = serializers.IntegerField()

@@ -1,6 +1,6 @@
 // app/dashboard/smart-scheduling/page.tsx
 "use client";
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Calendar, 
   Clock,  
@@ -11,6 +11,33 @@ import {
   Clock2
 } from 'lucide-react';
 
+// Define interfaces for your data
+interface Patient {
+  id: number;
+  name: string;
+  lastVisit: string;
+  preferredTime: string;
+}
+
+interface Appointment {
+  id: number;
+  time: string;
+  endTime: string;
+  patient: string;
+  type: string;
+  duration: number;
+}
+
+interface CalendarDay {
+  day: string | number;
+  appointments: number;
+  isToday?: boolean;
+}
+
+interface AppointmentCount {
+  date: string;
+  count: number;
+}
 
 export default function SmartSchedulingPage() {
   // State for selected date and appointments
@@ -25,10 +52,12 @@ export default function SmartSchedulingPage() {
 
   const [currentMonth, setCurrentMonth] = useState(selectedDate.getMonth());
   const [currentYear, setCurrentYear] = useState(selectedDate.getFullYear());
-
+  const [appointmentCounts, setAppointmentCounts] = useState<AppointmentCount[]>([]);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [loading, setLoading] = useState(true);
 
   // Mock data for patients
-  const patients = [
+  const patients: Patient[] = [
     { id: 1, name: "John Doe", lastVisit: "2 months ago", preferredTime: "Morning" },
     { id: 2, name: "Sarah Smith", lastVisit: "3 weeks ago", preferredTime: "Afternoon" },
     { id: 3, name: "Mike Johnson", lastVisit: "6 months ago", preferredTime: "Evening" },
@@ -36,32 +65,53 @@ export default function SmartSchedulingPage() {
     { id: 5, name: "Robert Wilson", lastVisit: "4 months ago", preferredTime: "Afternoon" }
   ];
 
-  const getAppointmentsForDate = (date: Date) => {
-    // This is a mock implementation. In a real app, you'd fetch from a backend
-    const monthAppointments = {
-      // Example: Adding specific appointments for different dates
-      '2024-3-1': [
-        { id: 1, time: "09:00 AM", endTime: "09:45 AM", patient: "John Doe", type: "Cleaning", duration: 45 },
-        { id: 2, time: "10:30 AM", endTime: "11:00 AM", patient: "Sarah Smith", type: "Check-up", duration: 30 }
-      ],
-      '2024-3-15': [
-        { id: 3, time: "02:00 PM", endTime: "03:00 PM", patient: "Mike Johnson", type: "Root Canal", duration: 60 },
-        { id: 4, time: "03:30 PM", endTime: "04:00 PM", patient: "Emily Brown", type: "Consultation", duration: 30 }
-      ],
-      '2024-3-20': [
-        { id: 5, time: "11:00 AM", endTime: "11:45 AM", patient: "Robert Wilson", type: "Dental Filling", duration: 45 }
-      ],
-      default: [
-        { id: 6, time: "10:00 AM", endTime: "10:30 AM", patient: "Lisa Martinez", type: "Regular Check-up", duration: 30 }
-      ]
+  // Fetch appointment counts for the current month
+  useEffect(() => {
+    const fetchAppointmentCounts = async () => {
+      setLoading(true);
+      try {
+        // Replace with your actual API endpoint
+        const response = await fetch(`/api/appointments/counts?year=${currentYear}&month=${currentMonth + 1}`);
+        if (response.ok) {
+          const data = await response.json();
+          setAppointmentCounts(data);
+        } else {
+          console.error('Failed to fetch appointment counts');
+        }
+      } catch (error) {
+        console.error('Error fetching appointment counts:', error);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    const key = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
-    return monthAppointments[key] || monthAppointments.default;
-  };
+    fetchAppointmentCounts();
+  }, [currentMonth, currentYear]);
 
-  // Dynamic appointments based on selected date
-  const appointments = useMemo(() => getAppointmentsForDate(selectedDate), [selectedDate]);
+  // Fetch appointments for selected date
+  useEffect(() => {
+    const fetchAppointments = async () => {
+      try {
+        // Format date as YYYY-MM-DD for API
+        const formattedDate = selectedDate.toISOString().split('T')[0];
+        
+        // Replace with your actual API endpoint
+        const response = await fetch(`/api/appointments/date/${formattedDate}`);
+        if (response.ok) {
+          const data = await response.json();
+          setAppointments(data);
+        } else {
+          console.error('Failed to fetch appointments for date');
+          setAppointments([]);
+        }
+      } catch (error) {
+        console.error('Error fetching appointments:', error);
+        setAppointments([]);
+      }
+    };
+
+    fetchAppointments();
+  }, [selectedDate]);
 
   // Mock smart recommendations
   const recommendations = [
@@ -69,38 +119,43 @@ export default function SmartSchedulingPage() {
     { patient: "Lisa Martinez", reason: "Follow-up for crown procedure", suggestedTime: "This Friday afternoon" }
   ];
 
-  // Helper function to generate calendar days
+  // Helper function to generate calendar days with actual appointment counts
   const generateCalendarDays = () => {
     const firstDay = new Date(currentYear, currentMonth, 1).getDay();
     const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
     
-    const days = [];
+    const days: CalendarDay[] = [];
     // Add empty cells for days before the first day of the month
     for (let i = 0; i < firstDay; i++) {
       days.push({ day: "", appointments: 0 });
     }
     
-    // Add days of the current month with random appointment counts
+    // Add days of the current month with actual appointment counts
     for (let i = 1; i <= daysInMonth; i++) {
-      const apptCount = Math.floor(Math.random() * 10);
+      const dateString = `${currentYear}-${(currentMonth + 1).toString().padStart(2, '0')}-${i.toString().padStart(2, '0')}`;
+      const countObj = appointmentCounts.find(item => item.date === dateString);
+      const apptCount = countObj ? countObj.count : 0;
+      
       days.push({ 
         day: i, 
         appointments: apptCount,
-        isToday: i === selectedDate.getDate()
+        isToday: new Date().getDate() === i && 
+                new Date().getMonth() === currentMonth && 
+                new Date().getFullYear() === currentYear
       });
     }
     
     return days;
   };
 
-    // Function to handle navigation between months
+  // Function to handle navigation between months
   const handlePreviousMonth = () => {
     if (currentMonth === 0) {
       setCurrentMonth(11);
       setCurrentYear(currentYear - 1);
     } else {
       setCurrentMonth(currentMonth - 1);
-      }
+    }
   };
   
   const handleNextMonth = () => {
@@ -116,27 +171,76 @@ export default function SmartSchedulingPage() {
   const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   // Function to handle new appointment submission
-  const handleAddAppointment = () => {
-    // In a real app, this would save the appointment
-    console.log("New appointment:", newAppointment);
-    setShowAddModal(false);
-    // Reset form
-    setNewAppointment({
-      patient: '',
-      time: '09:00',
-      duration: '30',
-      type: 'Check-up'
-    });
+  const handleAddAppointment = async () => {
+    try {
+      // Format the date for API
+      const formattedDate = selectedDate.toISOString().split('T')[0];
+      
+      // Create appointment data to send to backend
+      const appointmentData = {
+        patient_id: patients.find(p => p.name === newAppointment.patient)?.id,
+        appointment_type: newAppointment.type,
+        date: formattedDate,
+        start_time: newAppointment.time,
+        duration: parseInt(newAppointment.duration)
+      };
+      
+      // Replace with your actual API endpoint
+      const response = await fetch('/api/appointments', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(appointmentData),
+      });
+      
+      if (response.ok) {
+        // Refresh appointments for the selected date
+        const updatedResponse = await fetch(`/api/appointments/date/${formattedDate}`);
+        if (updatedResponse.ok) {
+          const data = await updatedResponse.json();
+          setAppointments(data);
+        }
+        
+        // Also refresh appointment counts for the month
+        const countsResponse = await fetch(`/api/appointments/counts?year=${currentYear}&month=${currentMonth + 1}`);
+        if (countsResponse.ok) {
+          const data = await countsResponse.json();
+          setAppointmentCounts(data);
+        }
+        
+        setShowAddModal(false);
+        // Reset form
+        setNewAppointment({
+          patient: '',
+          time: '09:00',
+          duration: '30',
+          type: 'Check-up'
+        });
+      } else {
+        console.error('Failed to add appointment');
+        // Handle error - you might want to show an error message to the user
+      }
+    } catch (error) {
+      console.error('Error adding appointment:', error);
+      // Handle error - you might want to show an error message to the user
+    }
   };
 
-  // Get available time slots (simplified)
+  // Get available time slots based on existing appointments
   const getAvailableSlots = () => {
-    return [
+    const bookedTimes = new Set(appointments.map(a => a.time));
+    
+    // Generate all possible time slots
+    const allTimeSlots = [
       "09:00 AM", "09:30 AM", "10:00 AM", "10:30 AM", 
       "11:00 AM", "11:30 AM", "01:00 PM", "01:30 PM",
       "02:00 PM", "02:30 PM", "03:00 PM", "03:30 PM",
       "04:00 PM", "04:30 PM"
-    ].filter(time => !appointments.some(a => a.time === time));
+    ];
+    
+    // Filter out booked times
+    return allTimeSlots.filter(slot => !bookedTimes.has(slot));
   };
 
   return (
@@ -170,7 +274,7 @@ export default function SmartSchedulingPage() {
             </div>
 
             {/* Calendar Grid */}
-<div className="p-4">
+            <div className="p-4">
               <div className="grid grid-cols-7 gap-1 mb-2">
                 {weekDays.map(day => (
                   <div key={day} className="text-center text-sm font-medium text-gray-600 py-2">
@@ -180,52 +284,56 @@ export default function SmartSchedulingPage() {
               </div>
               
               <div className="grid grid-cols-7 gap-1">
-                {calendarDays.map((day, index) => (
-                  <div 
-                    key={index} 
-                    className={`
-                      p-2 h-24 border border-gray-100 rounded-lg overflow-hidden
-                      ${day.isToday ? 'bg-blue-50 border-blue-200' : 'hover:bg-gray-50'} 
-                      ${day.day === "" ? 'bg-gray-50' : 'cursor-pointer'}
-                    `}
-                    onClick={() => {
-                      if (typeof day.day === "number") {
-                        setSelectedDate(new Date(currentYear, currentMonth, day.day));
-                      }
-                    }}
-                  >
-                    {day.day && (
-                      <>
-                        <div className="flex justify-between items-center">
-                          <span className={`text-sm font-medium ${day.isToday ? 'text-blue-600' : 'text-gray-900'}`}>
-                            {day.day}
-                          </span>
-                          {day.appointments > 0 && (
-                            <span className="text-xs px-1.5 py-0.5 bg-blue-100 text-blue-800 rounded-full">
-                              {day.appointments}
+                {loading ? (
+                  <div className="col-span-7 text-center py-12">Loading calendar data...</div>
+                ) : (
+                  calendarDays.map((day, index) => (
+                    <div 
+                      key={index} 
+                      className={`
+                        p-2 h-24 border border-gray-100 rounded-lg overflow-hidden
+                        ${day.isToday ? 'bg-blue-50 border-blue-200' : 'hover:bg-gray-50'} 
+                        ${day.day === "" ? 'bg-gray-50' : 'cursor-pointer'}
+                      `}
+                      onClick={() => {
+                        if (typeof day.day === "number") {
+                          setSelectedDate(new Date(currentYear, currentMonth, day.day));
+                        }
+                      }}
+                    >
+                      {day.day && (
+                        <>
+                          <div className="flex justify-between items-center">
+                            <span className={`text-sm font-medium ${day.isToday ? 'text-blue-600' : 'text-gray-900'}`}>
+                              {day.day}
                             </span>
-                          )}
-                        </div>
-                        
-                        {/* Small appointment indicators */}
-                        {day.appointments > 0 && (
-                          <div className="mt-2 space-y-1">
-                            {day.appointments > 0 && day.appointments <= 3 && Array(day.appointments).fill(0).map((_, i) => (
-                              <div key={i} className="h-1.5 w-full bg-blue-200 rounded-full"></div>
-                            ))}
-                            {day.appointments > 3 && (
-                              <>
-                                <div className="h-1.5 w-full bg-blue-200 rounded-full"></div>
-                                <div className="h-1.5 w-full bg-blue-200 rounded-full"></div>
-                                <div className="text-xs text-gray-500 mt-1">+{day.appointments - 2} more</div>
-                              </>
+                            {day.appointments > 0 && (
+                              <span className="text-xs px-1.5 py-0.5 bg-blue-100 text-blue-800 rounded-full">
+                                {day.appointments}
+                              </span>
                             )}
                           </div>
-                        )}
-                      </>
-                    )}
-                  </div>
-                ))}
+                          
+                          {/* Small appointment indicators */}
+                          {day.appointments > 0 && (
+                            <div className="mt-2 space-y-1">
+                              {day.appointments > 0 && day.appointments <= 3 && Array(day.appointments).fill(0).map((_, i) => (
+                                <div key={i} className="h-1.5 w-full bg-blue-200 rounded-full"></div>
+                              ))}
+                              {day.appointments > 3 && (
+                                <>
+                                  <div className="h-1.5 w-full bg-blue-200 rounded-full"></div>
+                                  <div className="h-1.5 w-full bg-blue-200 rounded-full"></div>
+                                  <div className="text-xs text-gray-500 mt-1">+{day.appointments - 2} more</div>
+                                </>
+                              )}
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  ))
+                )}
               </div>
             </div>
           </div>
@@ -269,80 +377,80 @@ export default function SmartSchedulingPage() {
         
         {/* Daily Schedule for Selected Date */}
         <div className="mt-6 bg-white rounded-xl shadow-sm">
-        <div className="p-4 border-b border-gray-200 flex justify-between items-center">
-          <h2 className="text-lg font-semibold text-gray-900 flex items-center">
-            <Clock className="h-5 w-5 mr-2 text-blue-600" />
-            Schedule for {selectedDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
-          </h2>
-          <button 
-            onClick={() => setShowAddModal(true)}
-            className="flex items-center bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg"
-          >
-            <Plus className="h-4 w-4 mr-1" />
-            New Appointment
-          </button>
-        </div>
+          <div className="p-4 border-b border-gray-200 flex justify-between items-center">
+            <h2 className="text-lg font-semibold text-gray-900 flex items-center">
+              <Clock className="h-5 w-5 mr-2 text-blue-600" />
+              Schedule for {selectedDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+            </h2>
+            <button 
+              onClick={() => setShowAddModal(true)}
+              className="flex items-center bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg"
+            >
+              <Plus className="h-4 w-4 mr-1" />
+              New Appointment
+            </button>
+          </div>
           
-        <div className="p-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Appointment Timeline */}
-            <div className="border border-gray-200 rounded-lg overflow-hidden">
-              <div className="p-3 bg-gray-50 border-b border-gray-200">
-                <h3 className="font-medium text-gray-900">Timeline</h3>
-              </div>
-              <div className="p-4 space-y-4 relative">
-                {/* Time indicator line */}
-                <div className="absolute left-4 top-4 bottom-4 w-0.5 bg-gray-200"></div>
-                
-                {appointments.map((apt, index) => (
-                  <div key={index} className="pl-8 relative">
-                    {/* Time indicator dot */}
-                    <div className="absolute left-0 w-4 h-4 rounded-full bg-blue-500 z-10"></div>
-                    
-                    <div className="p-3 bg-white border border-gray-200 rounded-lg shadow-sm">
-                      <div className="flex justify-between items-center">
-                        <span className="font-medium text-gray-900">{apt.time} - {apt.endTime}</span>
-                        <span className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded-full">
-                          {apt.duration} min
-                        </span>
-                      </div>
-                      <div className="mt-2">
-                        <p className="text-gray-900">{apt.patient}</p>
-                        <p className="text-sm text-gray-600">{apt.type}</p>
+          <div className="p-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Appointment Timeline */}
+              <div className="border border-gray-200 rounded-lg overflow-hidden">
+                <div className="p-3 bg-gray-50 border-b border-gray-200">
+                  <h3 className="font-medium text-gray-900">Timeline</h3>
+                </div>
+                <div className="p-4 space-y-4 relative">
+                  {/* Time indicator line */}
+                  <div className="absolute left-4 top-4 bottom-4 w-0.5 bg-gray-200"></div>
+                  
+                  {appointments.map((apt, index) => (
+                    <div key={index} className="pl-8 relative">
+                      {/* Time indicator dot */}
+                      <div className="absolute left-0 w-4 h-4 rounded-full bg-blue-500 z-10"></div>
+                      
+                      <div className="p-3 bg-white border border-gray-200 rounded-lg shadow-sm">
+                        <div className="flex justify-between items-center">
+                          <span className="font-medium text-gray-900">{apt.time} - {apt.endTime}</span>
+                          <span className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded-full">
+                            {apt.duration} min
+                          </span>
+                        </div>
+                        <div className="mt-2">
+                          <p className="text-gray-900">{apt.patient}</p>
+                          <p className="text-sm text-gray-600">{apt.type}</p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-                  
+                  ))}
+                    
                   {appointments.length === 0 && (
-                  <div className="text-center py-6 text-gray-500">
-                    No appointments scheduled for this day
-                  </div>
-                )}
+                    <div className="text-center py-6 text-gray-500">
+                      No appointments scheduled for this day
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
               
               {/* Available time slots */}
               <div className="border border-gray-200 rounded-lg overflow-hidden">
-              <div className="p-3 bg-gray-50 border-b border-gray-200">
-                <h3 className="font-medium text-gray-900">Available Slots</h3>
-              </div>
-              <div className="p-4">
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                  {getAvailableSlots().map((slot, index) => (
-                    <button 
-                      key={index}
-                      className="p-2 text-sm bg-green-50 text-green-700 border border-green-100 rounded-lg hover:bg-green-100 transition-colors"
-                    >
-                      {slot}
-                    </button>
-                  ))}
+                <div className="p-3 bg-gray-50 border-b border-gray-200">
+                  <h3 className="font-medium text-gray-900">Available Slots</h3>
+                </div>
+                <div className="p-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    {getAvailableSlots().map((slot, index) => (
+                      <button 
+                        key={index}
+                        className="p-2 text-sm bg-green-50 text-green-700 border border-green-100 rounded-lg hover:bg-green-100 transition-colors"
+                      >
+                        {slot}
+                      </button>
+                    ))}
 
-                  {getAvailableSlots().length === 0 && (
-                    <div className="text-center py-6 text-gray-500 col-span-3">
-                      No available slots for this day
-                    </div>
-                  )}
+                    {getAvailableSlots().length === 0 && (
+                      <div className="text-center py-6 text-gray-500 col-span-3">
+                        No available slots for this day
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

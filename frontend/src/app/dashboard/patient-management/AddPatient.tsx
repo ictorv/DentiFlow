@@ -19,6 +19,48 @@ const AddPatient: React.FC<AddPatientProps> = ({ isOpen, onClose, onPatientAdded
       .split("T")[0],
   });
 
+  const [errors, setErrors] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    last_visit: "",
+    next_appointment: "",
+  });
+
+  const validateForm = () => {
+    let valid = true;
+    const newErrors = { name: "", email: "", phone: "", last_visit: "", next_appointment: "" };
+
+    if (!formData.name.trim()) {
+      newErrors.name = "Name is required.";
+      valid = false;
+    }
+
+    if (!formData.email.trim() || !/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = "Enter a valid email.";
+      valid = false;
+    }
+
+    if (!formData.phone.trim() || !/^\+?\d{10,15}$/.test(formData.phone)) {
+      newErrors.phone = "Enter a valid phone number (10-15 digits).";
+      valid = false;
+    }
+
+    const today = new Date().toISOString().split("T")[0];
+    if (formData.last_visit > today) {
+      newErrors.last_visit = "Last visit cannot be in the future.";
+      valid = false;
+    }
+
+    if (formData.next_appointment <= formData.last_visit) {
+      newErrors.next_appointment = "Next appointment must be after the last visit.";
+      valid = false;
+    }
+
+    setErrors(newErrors);
+    return valid;
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -26,6 +68,8 @@ const AddPatient: React.FC<AddPatientProps> = ({ isOpen, onClose, onPatientAdded
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validateForm()) return;
+
     try {
       const response = await fetch("http://127.0.0.1:8000/api/patients/", {
         method: "POST",
@@ -46,6 +90,7 @@ const AddPatient: React.FC<AddPatientProps> = ({ isOpen, onClose, onPatientAdded
             .toISOString()
             .split("T")[0],
         });
+        setErrors({ name: "", email: "", phone: "", last_visit: "", next_appointment: "" });
       } else {
         const errorData = await response.json();
         alert(`Failed to add patient: ${JSON.stringify(errorData)}`);
@@ -67,9 +112,10 @@ const AddPatient: React.FC<AddPatientProps> = ({ isOpen, onClose, onPatientAdded
             <X className="h-5 w-5" />
           </button>
         </div>
-        
+
         <form onSubmit={handleSubmit}>
           <div className="space-y-4">
+            {/** Name Field **/}
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-700">
                 Full Name
@@ -80,11 +126,12 @@ const AddPatient: React.FC<AddPatientProps> = ({ isOpen, onClose, onPatientAdded
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                required
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               />
+              {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
             </div>
-            
+
+            {/** Email Field **/}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                 Email Address
@@ -95,11 +142,12 @@ const AddPatient: React.FC<AddPatientProps> = ({ isOpen, onClose, onPatientAdded
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                required
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               />
+              {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
             </div>
-            
+
+            {/** Phone Field **/}
             <div>
               <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
                 Phone Number
@@ -110,11 +158,12 @@ const AddPatient: React.FC<AddPatientProps> = ({ isOpen, onClose, onPatientAdded
                 name="phone"
                 value={formData.phone}
                 onChange={handleChange}
-                required
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               />
+              {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
             </div>
-            
+
+            {/** Last Visit Field **/}
             <div>
               <label htmlFor="last_visit" className="block text-sm font-medium text-gray-700">
                 Last Visit
@@ -125,11 +174,12 @@ const AddPatient: React.FC<AddPatientProps> = ({ isOpen, onClose, onPatientAdded
                 name="last_visit"
                 value={formData.last_visit}
                 onChange={handleChange}
-                required
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               />
+              {errors.last_visit && <p className="text-red-500 text-xs mt-1">{errors.last_visit}</p>}
             </div>
-            
+
+            {/** Next Appointment Field **/}
             <div>
               <label htmlFor="next_appointment" className="block text-sm font-medium text-gray-700">
                 Next Appointment
@@ -140,24 +190,20 @@ const AddPatient: React.FC<AddPatientProps> = ({ isOpen, onClose, onPatientAdded
                 name="next_appointment"
                 value={formData.next_appointment}
                 onChange={handleChange}
-                required
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               />
+              {errors.next_appointment && (
+                <p className="text-red-500 text-xs mt-1">{errors.next_appointment}</p>
+              )}
             </div>
           </div>
-          
+
+          {/** Buttons **/}
           <div className="mt-6 flex justify-end space-x-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-            >
+            <button type="button" onClick={onClose} className="px-4 py-2 border border-gray-300 rounded-md">
               Cancel
             </button>
-            <button
-              type="submit"
-              className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
-            >
+            <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-md">
               Add Patient
             </button>
           </div>

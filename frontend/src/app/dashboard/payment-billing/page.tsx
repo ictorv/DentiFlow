@@ -376,12 +376,17 @@ const PaymentBillingDashboard = () => {
           </div>
         </div>
       )}
-
       {activeTab === 'subscriptions' && (
         <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-lg font-medium text-gray-900">Patient Subscriptions</h2>
-            <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+            <button 
+              onClick={() => {
+                // Direct navigation - works in all cases
+                window.location.href = '/admin/billing/create-subscription-plan';
+              }}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
               New Subscription Plan
             </button>
           </div>
@@ -415,10 +420,10 @@ const PaymentBillingDashboard = () => {
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {[
-                    { name: 'Basic Care Plan', price: '$49.99', cycle: 'Monthly', subscribers: 32, status: 'Active' },
-                    { name: 'Family Coverage', price: '$129.99', cycle: 'Monthly', subscribers: 24, status: 'Active' },
-                    { name: 'Premium Health', price: '$199.99', cycle: 'Monthly', subscribers: 18, status: 'Active' },
-                    { name: 'Senior Care Plus', price: '$89.99', cycle: 'Monthly', subscribers: 15, status: 'Active' },
+                    { id: 1, name: 'Basic Care Plan', price: '$49.99', cycle: 'Monthly', subscribers: 32, status: 'Active' },
+                    { id: 2, name: 'Family Coverage', price: '$129.99', cycle: 'Monthly', subscribers: 24, status: 'Active' },
+                    { id: 3, name: 'Premium Health', price: '$199.99', cycle: 'Monthly', subscribers: 18, status: 'Active' },
+                    { id: 4, name: 'Senior Care Plus', price: '$89.99', cycle: 'Monthly', subscribers: 15, status: 'Active' },
                   ].map((plan, idx) => (
                     <tr key={idx}>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
@@ -439,8 +444,42 @@ const PaymentBillingDashboard = () => {
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <button className="text-blue-600 hover:text-blue-900 mr-3">Edit</button>
-                        <button className="text-red-600 hover:text-red-900">Disable</button>
+                        <button 
+                          onClick={(e) => {
+                            e.preventDefault();
+                            window.location.href = `/admin/billing/edit-subscription-plan/${plan.id}`;
+                          }}
+                          className="text-blue-600 hover:text-blue-900 mr-3"
+                        >
+                          Edit
+                        </button>
+                        <button 
+                          onClick={(e) => {
+                            e.preventDefault();
+                            // Simple approach with fetch
+                            fetch(`/api/billing/subscription-plans/${plan.id}/toggle-status/`, {
+                              method: 'PATCH',
+                              headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || ''
+                              }
+                            })
+                            .then(response => {
+                              if (response.ok) {
+                                // Reload the page after success
+                                window.location.reload();
+                              } else {
+                                console.error('Failed to update plan status');
+                              }
+                            })
+                            .catch(err => {
+                              console.error('Error updating plan status:', err);
+                            });
+                          }}
+                          className="text-red-600 hover:text-red-900"
+                        >
+                          Disable
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -454,20 +493,38 @@ const PaymentBillingDashboard = () => {
             <h3 className="text-md font-medium text-gray-700 mb-4">Recent Subscription Activities</h3>
             <div className="space-y-4">
               {[
-                { patient: 'Thomas Wilson', action: 'subscribed to', plan: 'Basic Care Plan', time: '2 hours ago' },
-                { patient: 'Emily Johnson', action: 'cancelled', plan: 'Premium Health', time: '5 hours ago' },
-                { patient: 'Robert Lee', action: 'upgraded to', plan: 'Family Coverage', time: '1 day ago' },
-                { patient: 'Jennifer Adams', action: 'renewed', plan: 'Senior Care Plus', time: '2 days ago' },
+                { id: 1, patient: 'Thomas Wilson', action: 'subscribed to', plan: 'Basic Care Plan', time: '2 hours ago', patientId: 101, planId: 1 },
+                { id: 2, patient: 'Emily Johnson', action: 'cancelled', plan: 'Premium Health', time: '5 hours ago', patientId: 102, planId: 3 },
+                { id: 3, patient: 'Robert Lee', action: 'upgraded to', plan: 'Family Coverage', time: '1 day ago', patientId: 103, planId: 2 },
+                { id: 4, patient: 'Jennifer Adams', action: 'renewed', plan: 'Senior Care Plus', time: '2 days ago', patientId: 104, planId: 4 },
               ].map((activity, idx) => (
                 <div key={idx} className="flex items-center p-3 border border-gray-200 rounded-lg">
                   <div className="h-9 w-9 rounded-full bg-blue-100 flex items-center justify-center mr-3">
                     <Users className="h-4 w-4 text-blue-600" />
                   </div>
-                  <div>
+                  <div className="flex-grow">
                     <p className="text-sm text-gray-800">
-                      <span className="font-medium">{activity.patient}</span> {activity.action} <span className="font-medium">{activity. plan}</span>
+                      <span className="font-medium">{activity.patient}</span> {activity.action} <span className="font-medium">{activity.plan}</span>
                     </p>
                     <p className="text-xs text-gray-500">{activity.time}</p>
+                  </div>
+                  <div className="flex items-center">
+                    <button
+                      onClick={() => {
+                        window.location.href = `/admin/patients/view/${activity.patientId}`;
+                      }}
+                      className="text-blue-600 hover:text-blue-900 mr-3 text-sm"
+                    >
+                      View Patient
+                    </button>
+                    <button
+                      onClick={() => {
+                        window.location.href = `/admin/billing/subscription-plans/${activity.planId}`;
+                      }}
+                      className="text-blue-600 hover:text-blue-900 text-sm"
+                    >
+                      View Plan
+                    </button>
                   </div>
                 </div>
               ))}

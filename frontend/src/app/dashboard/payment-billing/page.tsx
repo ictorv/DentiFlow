@@ -7,13 +7,63 @@ const PaymentBillingDashboard = () => {
   // State for active tab
   const [activeTab, setActiveTab] = useState('overview');
   
+  // State for button functionality
+  const [notifications, setNotifications] = useState(3);
+  const [showAddPaymentModal, setShowAddPaymentModal] = useState(false);
+  const [paymentSettings, setPaymentSettings] = useState({
+    reminders: true,
+    portal: true,
+    reconciliation: false
+  });
+  const [showingApiKey, setShowingApiKey] = useState(null);
+  const [apiKeys, setApiKeys] = useState({
+    production: "pk_live_51abcXYZ123456789",
+    test: "pk_test_51abcXYZ123456789"
+  });
+  
   // Sample data for revenue chart
   const revenueData = [
     { month: 'Jan', amount: 18500 },
     { month: 'Feb', amount: 21300 },
     { month: 'Mar', amount: 24500 },
   ];
-  
+
+  // Handle toggle changes
+  const handleToggleChange = (setting) => {
+    setPaymentSettings({
+      ...paymentSettings,
+      [setting]: !paymentSettings[setting]
+    });
+  };
+
+  // Handle API key actions
+  const handleApiKeyAction = (keyType, action) => {
+    if (action === 'view') {
+      setShowingApiKey(keyType === showingApiKey ? null : keyType);
+    } else if (action === 'revoke') {
+      if (confirm(`Are you sure you want to revoke the ${keyType} API key?`)) {
+        // In a real app, you would make an API call here
+        alert(`${keyType.charAt(0).toUpperCase() + keyType.slice(1)} API key revoked`);
+      }
+    }
+  };
+
+  // Handle add payment method
+  const handleAddPaymentMethod = () => {
+    setShowAddPaymentModal(true);
+  };
+
+  // Handle notification click
+  const handleNotificationClick = () => {
+    alert(`You have ${notifications} unread notifications`);
+    setNotifications(0);
+  };
+
+  // Handle generate new API key
+  const handleGenerateNewKey = () => {
+    const newKey = "pk_" + Math.random().toString(36).substring(2, 15);
+    alert(`New API key generated: ${newKey}`);
+  };
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
@@ -533,11 +583,14 @@ const PaymentBillingDashboard = () => {
         </div>
       )}
 
-      {activeTab === 'payment-methods' && (
+{activeTab === 'payment-methods' && (
         <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-lg font-medium text-gray-900">Payment Methods</h2>
-            <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+            <button 
+              onClick={handleAddPaymentMethod}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
               Add Payment Method
             </button>
           </div>
@@ -610,9 +663,20 @@ const PaymentBillingDashboard = () => {
                   </div>
                 </div>
                 <div className="relative inline-block w-12 h-6">
-                  <input type="checkbox" id="toggle-reminders" className="opacity-0 w-0 h-0" defaultChecked />
-                  <label htmlFor="toggle-reminders" className="block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer">
-                    <span className="block h-6 w-6 rounded-full bg-white transform translate-x-6 transition"></span>
+                  <input 
+                    type="checkbox" 
+                    id="toggle-reminders" 
+                    className="opacity-0 w-0 h-0" 
+                    checked={paymentSettings.reminders}
+                    onChange={() => handleToggleChange('reminders')}
+                  />
+                  <label 
+                    htmlFor="toggle-reminders" 
+                    className="block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"
+                  >
+                    <span 
+                      className={`block h-6 w-6 rounded-full bg-white transform transition ${paymentSettings.reminders ? 'translate-x-6' : ''}`}
+                    ></span>
                   </label>
                 </div>
               </div>
@@ -626,9 +690,20 @@ const PaymentBillingDashboard = () => {
                   </div>
                 </div>
                 <div className="relative inline-block w-12 h-6">
-                  <input type="checkbox" id="toggle-portal" className="opacity-0 w-0 h-0" defaultChecked />
-                  <label htmlFor="toggle-portal" className="block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer">
-                    <span className="block h-6 w-6 rounded-full bg-white transform translate-x-6 transition"></span>
+                  <input 
+                    type="checkbox" 
+                    id="toggle-portal" 
+                    className="opacity-0 w-0 h-0" 
+                    checked={paymentSettings.portal}
+                    onChange={() => handleToggleChange('portal')}
+                  />
+                  <label 
+                    htmlFor="toggle-portal" 
+                    className="block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"
+                  >
+                    <span 
+                      className={`block h-6 w-6 rounded-full bg-white transform transition ${paymentSettings.portal ? 'translate-x-6' : ''}`}
+                    ></span>
                   </label>
                 </div>
               </div>
@@ -642,9 +717,20 @@ const PaymentBillingDashboard = () => {
                   </div>
                 </div>
                 <div className="relative inline-block w-12 h-6">
-                  <input type="checkbox" id="toggle-reconciliation" className="opacity-0 w-0 h-0" />
-                  <label htmlFor="toggle-reconciliation" className="block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer">
-                    <span className="block h-6 w-6 rounded-full bg-white transform transition"></span>
+                  <input 
+                    type="checkbox" 
+                    id="toggle-reconciliation" 
+                    className="opacity-0 w-0 h-0" 
+                    checked={paymentSettings.reconciliation}
+                    onChange={() => handleToggleChange('reconciliation')}
+                  />
+                  <label 
+                    htmlFor="toggle-reconciliation" 
+                    className="block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"
+                  >
+                    <span 
+                      className={`block h-6 w-6 rounded-full bg-white transform transition ${paymentSettings.reconciliation ? 'translate-x-6' : ''}`}
+                    ></span>
                   </label>
                 </div>
               </div>
@@ -655,27 +741,58 @@ const PaymentBillingDashboard = () => {
           <div>
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-md font-medium text-gray-700">API Keys</h3>
-              <button className="text-sm text-blue-600 hover:text-blue-800">Generate New Key</button>
+              <button 
+                className="text-sm text-blue-600 hover:text-blue-800"
+                onClick={handleGenerateNewKey}
+              >
+                Generate New Key
+              </button>
             </div>
             <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h4 className="font-medium text-gray-800">Production API Key</h4>
                   <p className="text-sm text-gray-500">Last used: March 10, 2025</p>
+                  {showingApiKey === 'production' && (
+                    <p className="mt-2 p-2 bg-gray-100 rounded text-sm font-mono">{apiKeys.production}</p>
+                  )}
                 </div>
                 <div className="flex items-center space-x-2">
-                  <button className="text-sm text-blue-600 hover:text-blue-800">View</button>
-                  <button className="text-sm text-red-600 hover:text-red-800">Revoke</button>
+                  <button 
+                    className="text-sm text-blue-600 hover:text-blue-800"
+                    onClick={() => handleApiKeyAction('production', 'view')}
+                  >
+                    {showingApiKey === 'production' ? 'Hide' : 'View'}
+                  </button>
+                  <button 
+                    className="text-sm text-red-600 hover:text-red-800"
+                    onClick={() => handleApiKeyAction('production', 'revoke')}
+                  >
+                    Revoke
+                  </button>
                 </div>
               </div>
               <div className="flex items-center justify-between">
                 <div>
                   <h4 className="font-medium text-gray-800">Test API Key</h4>
                   <p className="text-sm text-gray-500">Last used: March 12, 2025</p>
+                  {showingApiKey === 'test' && (
+                    <p className="mt-2 p-2 bg-gray-100 rounded text-sm font-mono">{apiKeys.test}</p>
+                  )}
                 </div>
                 <div className="flex items-center space-x-2">
-                  <button className="text-sm text-blue-600 hover:text-blue-800">View</button>
-                  <button className="text-sm text-red-600 hover:text-red-800">Revoke</button>
+                  <button 
+                    className="text-sm text-blue-600 hover:text-blue-800"
+                    onClick={() => handleApiKeyAction('test', 'view')}
+                  >
+                    {showingApiKey === 'test' ? 'Hide' : 'View'}
+                  </button>
+                  <button 
+                    className="text-sm text-red-600 hover:text-red-800"
+                    onClick={() => handleApiKeyAction('test', 'revoke')}
+                  >
+                    Revoke
+                  </button>
                 </div>
               </div>
             </div>
@@ -683,15 +800,72 @@ const PaymentBillingDashboard = () => {
         </div>
       )}
 
-      {/* Notifications Panel - New Feature */}
+      {/* Add Payment Method Modal */}
+      {showAddPaymentModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-medium">Add Payment Method</h3>
+              <button 
+                onClick={() => setShowAddPaymentModal(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                &times;
+              </button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Provider</label>
+                <select className="w-full p-2 border border-gray-300 rounded-md">
+                  <option>Stripe</option>
+                  <option>PayPal</option>
+                  <option>Square</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">API Key</label>
+                <input type="text" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Enter API key" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <input type="text" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Optional description" />
+              </div>
+              <div className="flex justify-end space-x-2 mt-6">
+                <button
+                  onClick={() => setShowAddPaymentModal(false)}
+                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={() => {
+                    alert("Payment method added successfully!");
+                    setShowAddPaymentModal(false);
+                  }}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                >
+                  Save
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Notifications Panel */}
       <div className="fixed bottom-4 right-4">
         <div className="relative">
-          <button className="bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 focus:outline-none">
+          <button 
+            className="bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 focus:outline-none"
+            onClick={handleNotificationClick}
+          >
             <Bell className="h-5 w-5" />
           </button>
-          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-            3
-          </span>
+          {notifications > 0 && (
+            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+              {notifications}
+            </span>
+          )}
         </div>
       </div>
     </div>

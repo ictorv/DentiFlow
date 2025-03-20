@@ -6,10 +6,12 @@ import InvoiceGenerator from "./InvoiceGenerator";
 const PaymentBillingDashboard = () => {
   // State for active tab
   const [activeTab, setActiveTab] = useState('overview');
-  
+ 
   // State for button functionality
   const [notifications, setNotifications] = useState(3);
   const [showAddPaymentModal, setShowAddPaymentModal] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [showInvoiceModal, setShowInvoiceModal] = useState(false);
   const [paymentSettings, setPaymentSettings] = useState({
     reminders: true,
     portal: true,
@@ -20,14 +22,14 @@ const PaymentBillingDashboard = () => {
     production: "pk_live_51abcXYZ123456789",
     test: "pk_test_51abcXYZ123456789"
   });
-  
+ 
   // Sample data for revenue chart
   const revenueData = [
     { month: 'Jan', amount: 18500 },
     { month: 'Feb', amount: 21300 },
     { month: 'Mar', amount: 24500 },
   ];
-
+  
   // Handle toggle changes
   const handleToggleChange = (setting) => {
     setPaymentSettings({
@@ -35,7 +37,7 @@ const PaymentBillingDashboard = () => {
       [setting]: !paymentSettings[setting]
     });
   };
-
+  
   // Handle API key actions
   const handleApiKeyAction = (keyType, action) => {
     if (action === 'view') {
@@ -47,37 +49,175 @@ const PaymentBillingDashboard = () => {
       }
     }
   };
-
+  
   // Handle add payment method
   const handleAddPaymentMethod = () => {
     setShowAddPaymentModal(true);
   };
-
+  
   // Handle notification click
   const handleNotificationClick = () => {
     alert(`You have ${notifications} unread notifications`);
     setNotifications(0);
   };
-
+  
   // Handle generate new API key
   const handleGenerateNewKey = () => {
     const newKey = "pk_" + Math.random().toString(36).substring(2, 15);
     alert(`New API key generated: ${newKey}`);
   };
+
+  // Handle settings button click
+  const handleSettingsClick = () => {
+    setShowSettingsModal(true);
+  };
+
+  // Handle new invoice button click
+  const handleNewInvoiceClick = () => {
+    setShowInvoiceModal(true);
+  };
+
+  // Simple modal component
+  const Modal = ({ isOpen, onClose, title, children }) => {
+    if (!isOpen) return null;
+    
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg p-6 w-full max-w-md">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold">{title}</h2>
+            <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+              ✕
+            </button>
+          </div>
+          <div>{children}</div>
+        </div>
+      </div>
+    );
+  };
+  
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Payment & Billing</h1>
         <div className="flex space-x-3">
-          <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+          <button 
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            onClick={handleNewInvoiceClick}
+          >
             New Invoice
           </button>
-          <button className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center">
+          <button 
+            className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center"
+            onClick={handleSettingsClick}
+          >
             <Settings className="h-4 w-4 mr-2" />
             Settings
           </button>
         </div>
       </div>
+
+      {/* Settings Modal */}
+      <Modal 
+        isOpen={showSettingsModal}
+        onClose={() => setShowSettingsModal(false)}
+        title="Payment Settings"
+      >
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <label className="font-medium">Payment Reminders</label>
+            <input 
+              type="checkbox" 
+              checked={paymentSettings.reminders}
+              onChange={() => handleToggleChange('reminders')}
+              className="h-5 w-5"
+            />
+          </div>
+          <div className="flex items-center justify-between">
+            <label className="font-medium">Customer Portal</label>
+            <input 
+              type="checkbox" 
+              checked={paymentSettings.portal}
+              onChange={() => handleToggleChange('portal')}
+              className="h-5 w-5"
+            />
+          </div>
+          <div className="flex items-center justify-between">
+            <label className="font-medium">Auto Reconciliation</label>
+            <input 
+              type="checkbox" 
+              checked={paymentSettings.reconciliation}
+              onChange={() => handleToggleChange('reconciliation')}
+              className="h-5 w-5"
+            />
+          </div>
+          <button 
+            className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors mt-4"
+            onClick={() => setShowSettingsModal(false)}
+          >
+            Save Settings
+          </button>
+        </div>
+      </Modal>
+
+      {/* New Invoice Modal */}
+      <Modal 
+        isOpen={showInvoiceModal}
+        onClose={() => setShowInvoiceModal(false)}
+        title="Create New Invoice"
+      >
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Customer
+            </label>
+            <select className="w-full border border-gray-300 rounded-md p-2">
+              <option>Select a customer</option>
+              <option>Acme Corp</option>
+              <option>Globex Inc</option>
+              <option>Stark Industries</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Invoice Amount
+            </label>
+            <div className="relative">
+              <span className="absolute inset-y-0 left-0 flex items-center pl-3">
+                <DollarSign className="h-4 w-4 text-gray-400" />
+              </span>
+              <input 
+                type="number" 
+                className="pl-8 w-full border border-gray-300 rounded-md p-2" 
+                placeholder="0.00"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Due Date
+            </label>
+            <input 
+              type="date" 
+              className="w-full border border-gray-300 rounded-md p-2"
+            />
+          </div>
+          <div className="flex space-x-3">
+            <button 
+              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              onClick={() => setShowInvoiceModal(false)}
+            >
+              Create Invoice
+            </button>
+            <button 
+              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              onClick={() => setShowInvoiceModal(false)}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </Modal>
       
       {/* Navigation Tabs */}
       <div className="flex border-b border-gray-200 mb-6">

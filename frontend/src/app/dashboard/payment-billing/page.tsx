@@ -2,6 +2,15 @@
 import React, { useState } from 'react';
 import { CreditCard, DollarSign, FileText, PieChart, Settings, Calendar, Search, TrendingUp, Download, Printer, Bell, Users, ChevronDown, Filter } from 'lucide-react';
 import InvoiceGenerator from "./InvoiceGenerator";
+import { 
+  LineChart, 
+  Line, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer 
+} from 'recharts';
 
 const PaymentBillingDashboard = () => {
   // State for active tab
@@ -414,46 +423,75 @@ const PaymentBillingDashboard = () => {
 
       {activeTab === 'analytics' && (
         <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
-          <h2 className="text-lg font-medium text-gray-900 mb-6">Revenue Analytics</h2>
-          
+          <h2 className="text-lg font-medium text-gray-900 mb-6 flex items-center">
+            <DollarSign className="mr-2 text-gray-600" />
+            Revenue Analytics
+          </h2>
+        
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Revenue Trend */}
             <div className="border border-gray-200 rounded-lg p-4">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-md font-medium text-gray-700">Revenue Trend</h3>
+                <h3 className="text-md font-medium text-gray-700 flex items-center">
+                  <TrendingUp className="mr-2 text-gray-500" />
+                  Revenue Trend
+                </h3>
                 <div className="flex items-center space-x-2">
-                  <select className="block w-full pl-3 pr-10 py-2 text-xs border border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 rounded-md">
+                  <select 
+                    className="block w-full pl-3 pr-10 py-2 text-xs border border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 rounded-md"
+                  >
                     <option>Last 3 Months</option>
                     <option>Last 6 Months</option>
                     <option>Last Year</option>
                   </select>
                 </div>
               </div>
-              
-              <div className="h-64 flex items-end space-x-6 mb-4">
-                {revenueData.map((item, idx) => (
-                  <div key={idx} className="flex-1 flex flex-col items-center">
-                    <div className="w-full bg-blue-500 rounded-t-sm" style={{height: `${(item.amount / 25000) * 100}%`}}></div>
-                    <div className="text-xs font-medium text-gray-600 mt-2">{item.month}</div>
-                  </div>
-                ))}
+            
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={revenueData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                    <XAxis dataKey="month" />
+                    <YAxis 
+                      tickFormatter={(value) => `$${value.toLocaleString()}`} 
+                    />
+                    <Tooltip 
+                      formatter={(value) => [`$${value.toLocaleString()}`, 'Revenue']}
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="amount" 
+                      stroke="#3b82f6" 
+                      strokeWidth={2} 
+                      dot={{ r: 4 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
               </div>
-              
-              <div className="flex items-center justify-between text-sm">
-                <div className="text-gray-500">Total Revenue: <span className="font-semibold text-gray-700">$64,300</span></div>
+            
+              <div className="flex items-center justify-between text-sm mt-4">
+                <div className="text-gray-500">
+                  Total Revenue: <span className="font-semibold text-gray-700">
+                    $64,300
+                  </span>
+                </div>
                 <div className="flex items-center text-green-600">
-                  <TrendingUp className="h-4 w-4 mr-1" /> +12.4% from previous period
+                  <TrendingUp className="h-4 w-4 mr-1" /> 
+                  +12.4% from previous period
                 </div>
               </div>
             </div>
-            
           
+            {/* Payment Methods */}
             <div className="border border-gray-200 rounded-lg p-4">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-md font-medium text-gray-700">Payment Methods</h3>
+                <h3 className="text-md font-medium text-gray-700 flex items-center">
+                  <CreditCard className="mr-2 text-gray-500" />
+                  Payment Methods
+                </h3>
                 <div className="text-xs text-gray-500">Last 30 days</div>
               </div>
-              
+            
               <div className="space-y-4">
                 <div>
                   <div className="flex justify-between mb-1">

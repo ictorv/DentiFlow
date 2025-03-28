@@ -526,84 +526,97 @@ const PaymentBillingDashboard = () => {
         </div>
       )}
 
-      {activeTab === 'reports' && (
-        <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-lg font-medium text-gray-900">Financial Reports</h2>
-            <div className="flex space-x-2">
-              <button className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 flex items-center">
-                <Download className="h-4 w-4 mr-2" />
-                Export
-              </button>
-              <button className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 flex items-center">
-                <Printer className="h-4 w-4 mr-2" />
-                Print
-              </button>
-            </div>
-          </div>
-          
-          <div className="space-y-4">
-            {/* Report Types */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="border border-gray-200 rounded-lg p-4 hover:border-blue-500 cursor-pointer transition-colors">
-                <h3 className="font-medium text-gray-800 mb-2">Monthly Income Statement</h3>
-                <p className="text-sm text-gray-500">Summary of revenues, expenses, and profit for the month</p>
-                <div className="flex justify-end mt-4">
-                  <Download className="h-4 w-4 text-gray-400" />
-                </div>
-              </div>
-              <div className="border border-gray-200 rounded-lg p-4 hover:border-blue-500 cursor-pointer transition-colors">
-                <h3 className="font-medium text-gray-800 mb-2">Quarterly Revenue Report</h3>
-                <p className="text-sm text-gray-500">Detailed breakdown of revenue streams and trends</p>
-                <div className="flex justify-end mt-4">
-                  <Download className="h-4 w-4 text-gray-400" />
-                </div>
-              </div>
-              <div className="border border-gray-200 rounded-lg p-4 hover:border-blue-500 cursor-pointer transition-colors">
-                <h3 className="font-medium text-gray-800 mb-2">Annual Financial Summary</h3>
-                <p className="text-sm text-gray-500">Complete financial overview for the fiscal year</p>
-                <div className="flex justify-end mt-4">
-                  <Download className="h-4 w-4 text-gray-400" />
-                </div>
-              </div>
-            </div>
-            
-            {/* Schedule Reports */}
-            <div className="border border-gray-200 rounded-lg p-4 mt-6">
-              <h3 className="font-medium text-gray-800 mb-4">Schedule Report Delivery</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">Report Type</label>
-                  <select className="block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
-                    <option>Income Statement</option>
-                    <option>Revenue Report</option>
-                    <option>Outstanding Invoices</option>
-                  </select>
-                </div>
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">Frequency</label>
-                  <select className="block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
-                    <option>Weekly</option>
-                    <option>Monthly</option>
-                    <option>Quarterly</option>
-                  </select>
-                </div>
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">Recipients</label>
-                  <select className="block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
-                    <option>Accounting Team</option>
-                    <option>Management</option>
-                    <option>Custom...</option>
-                  </select>
-                </div>
-              </div>
-              <button className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                Schedule Report
-              </button>
-            </div>
+     {activeTab === 'reports' && (
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="flex justify-between items-center mb-8">
+          <h2 className="text-2xl font-semibold text-gray-800">Financial Reports</h2>
+          <div className="flex space-x-3">
+            <button className="flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-md text-sm font-medium text-gray-700 transition-colors" onClick={() => handleExport()}>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+              </svg>
+              Export
+            </button>
+            <button className="flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-md text-sm font-medium text-gray-700 transition-colors" onClick={() => handlePrint()}>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m-7-4v-3a3 3 0 116 0v3m6 0v3a2 2 0 104 0v-3" />
+              </svg>
+              Print
+            </button>
           </div>
         </div>
-      )}
+    
+        <div className="space-y-6">
+          {/* Report Types */}
+          <div>
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">Available Reports</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="border border-gray-200 rounded-xl p-5 hover:shadow-md transition-shadow cursor-pointer" onClick={() => handleReportClick('monthlyIncome')}>
+                <h4 className="font-medium text-gray-900 mb-3">Monthly Income Statement</h4>
+                <p className="text-sm text-gray-600 mb-4">Summary of revenues, expenses, and profit for the month.</p>
+                <div className="flex justify-end">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                  </svg>
+                </div>
+              </div>
+              <div className="border border-gray-200 rounded-xl p-5 hover:shadow-md transition-shadow cursor-pointer" onClick={() => handleReportClick('quarterlyRevenue')}>
+                <h4 className="font-medium text-gray-900 mb-3">Quarterly Revenue Report</h4>
+                <p className="text-sm text-gray-600 mb-4">Detailed breakdown of revenue streams and trends.</p>
+                <div className="flex justify-end">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                  </svg>
+                </div>
+              </div>
+              <div className="border border-gray-200 rounded-xl p-5 hover:shadow-md transition-shadow cursor-pointer" onClick={() => handleReportClick('annualSummary')}>
+                <h4 className="font-medium text-gray-900 mb-3">Annual Financial Summary</h4>
+                <p className="text-sm text-gray-600 mb-4">Complete financial overview for the fiscal year.</p>
+                <div className="flex justify-end">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+    
+          {/* Schedule Reports */}
+          <div className="border border-gray-200 rounded-xl p-6">
+            <h3 className="text-lg font-semibold text-gray-800 mb-5">Schedule Report Delivery</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Report Type</label>
+                <select className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" value={scheduledReport.reportType} onChange={(e) => setScheduledReport({...scheduledReport, reportType: e.target.value})}>
+                  <option value="incomeStatement">Income Statement</option>
+                  <option value="revenueReport">Revenue Report</option>
+                  <option value="outstandingInvoices">Outstanding Invoices</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Frequency</label>
+                <select className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" value={scheduledReport.frequency} onChange={(e) => setScheduledReport({...scheduledReport, frequency: e.target.value})}>
+                  <option value="weekly">Weekly</option>
+                  <option value="monthly">Monthly</option>
+                  <option value="quarterly">Quarterly</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Recipients</label>
+                <select className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" value={scheduledReport.recipients} onChange={(e) => setScheduledReport({...scheduledReport, recipients: e.target.value})}>
+                  <option value="accounting">Accounting Team</option>
+                  <option value="management">Management</option>
+                  <option value="custom">Custom...</option>
+                </select>
+              </div>
+            </div>
+            <button className="mt-6 w-full py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors" onClick={() => handleScheduleReport()}>
+              Schedule Report
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
       {activeTab === 'subscriptions' && (
         <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
           <div className="flex justify-between items-center mb-6">
